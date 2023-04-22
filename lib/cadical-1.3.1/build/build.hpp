@@ -1,0 +1,5 @@
+#define VERSION "1.3.1"
+#define IDENTIFIER "b935c3a630877c16a33a7f9bc786783ae61a7cda"
+#define COMPILER "g++ (GCC) 11.3.1 20220421 (Red Hat 11.3.1-3)"
+#define FLAGS "-Wall -Wextra -O3 -DNDEBUG"
+#define DATE "Wed Feb 22 11:15:40 AM CET 2023 Linux fedora 6.0.11-100.fc35.x86_64 x86_64"
