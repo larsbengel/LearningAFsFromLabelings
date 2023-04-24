@@ -1,11 +1,10 @@
-#include "Labeling.h"
-#include "LearningProblem.h"
-
 #include <iostream>			//std::cout
 #include <fstream>			//ifstream
 #include <sstream>
 #include <algorithm>
 #include <stack>
+
+#include "LearningProblem.h"
 
 #include <getopt.h>			// parsing commandline options
 
@@ -14,6 +13,14 @@ using namespace std;
 static int version_flag = 0;
 static int usage_flag = 0;
 static int formats_flag = 0;
+
+Semantics string_to_sem(string semantics) {
+	if (semantics == "CF") return CF;
+	if (semantics == "ADM") return AD;
+	if (semantics == "CO") return CO;
+	if (semantics == "ST") return ST;
+	return UNKNOWN_SEM;
+}
 
 void print_usage(string solver_name) {
 	cout << "Usage: " << solver_name << " -a <arguments> -f <file> -fo <format> \n\n";
@@ -165,11 +172,13 @@ int main(int argc, char ** argv) {
 	labelings.reserve(1000);
 
 	while(!input_labelings.eof()) {
-		Labeling lab = Labeling(af.args, "CO");
 		getline(input_labelings, line);
 		line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
 		if (line.length() == 0 || line[0] == '/' || line[0] == '%') continue;
-		string subs = line.substr(1, line.length()-2);
+		int endSemantics = line.find(":");
+		string semantics = line.substr(0, endSemantics);
+		Labeling lab = Labeling(af.args, string_to_sem(semantics));
+		string subs = line.substr(endSemantics+2, line.length()-endSemantics-3);
 		int endIn = subs.find("],[");
 		int endOut = subs.find("],[", endIn+1);
 		stringstream strIn(subs.substr(1, endIn-1));

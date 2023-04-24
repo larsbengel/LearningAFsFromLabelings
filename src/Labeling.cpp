@@ -1,11 +1,12 @@
 #include "Labeling.h"
+#include <iostream>
 
 using namespace std;
 
-Labeling::Labeling(int args, std::string semantics) {
+Labeling::Labeling(int args, Semantics semantics) {
     in.resize(args);
     out.resize(args);
-    semantics = semantics;
+    this->semantics = semantics;
 }
 
 void Labeling::set_label(int arg, int label) {
@@ -35,4 +36,8 @@ int Labeling::get_label(int arg) {
         return LAB_UNDEC;
     }
     return LAB_UNLABELED;
+}
+
+Semantics Labeling::get_semantics() {
+    return semantics;
 }

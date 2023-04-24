@@ -22,12 +22,22 @@ void LearningProblem::initialize() {
 }
 
 void LearningProblem::learn_labeling(Labeling & lab) {
-	switch (lab.semantics) {
-		case /* constant-expression */:
-			/* code */
+	switch (lab.get_semantics()) {
+		case CF:
+			return learn_labeling_cf(lab);
+			break;
+		case AD:
+			return learn_labeling_ad(lab);
+			break;
+		case CO:
+			return learn_labeling_co(lab);
+			break;
+		case ST:
+			return learn_labeling_st(lab);
 			break;
 	
 		default:
+			std::cerr << "Semantics " << lab.get_semantics() << " not supported!" << std::endl;
 			break;
 	}
 }

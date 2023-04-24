@@ -1,6 +1,8 @@
 #include <vector>
 #include <string>
 
+enum Semantics { CF, AD, CO, ST, UNKNOWN_SEM};
+
 #define LAB_IN 1
 #define LAB_OUT 2
 #define LAB_UNDEC 4
@@ -9,11 +11,13 @@
 class Labeling {
     public:
 
-    Labeling(int args, std::string semantics);
+    Labeling(int args, Semantics semantics);
+
     std::vector<bool> in;
     std::vector<bool> out;
-    std::string semantics;
+    Semantics semantics;
 
     void set_label(int arg, int label);
     int get_label(int arg);
+    Semantics get_semantics();
 };
