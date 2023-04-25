@@ -29,6 +29,7 @@ def main():
         base_name, extension = os.path.splitext(results_file_name)
         results_file_name = base_name + f"_{count}" + extension
 
+    Path(os.path.dirname(output_file_dir)).mkdir(parents=True, exist_ok=True)
     Path(os.path.dirname(results_file_name)).mkdir(parents=True, exist_ok=True)
     Path(results_file_name).touch()
     Path(output_file_dir).mkdir(parents=True, exist_ok=True)
