@@ -29,9 +29,13 @@ def main():
         base_name, extension = os.path.splitext(results_file_name)
         results_file_name = base_name + f"_{count}" + extension
 
-    Path(os.path.dirname(output_file_dir)).mkdir(parents=True, exist_ok=True)
+    if count > 1:
+        output_file_dir += f"_{count}"
+
     Path(os.path.dirname(results_file_name)).mkdir(parents=True, exist_ok=True)
-    Path(results_file_name).touch()
+    #Path(results_file_name).touch()
+    with open(results_file_name, 'w') as results_file:
+        results_file.write("program,instance,labelings,format,timed_out,runtime,result,exit_with_error,error_code,error,cut_off,repetition\n")
     Path(output_file_dir).mkdir(parents=True, exist_ok=True)
     for repetition in range(args.repetitions):
         run_experiment(args.executable, args.directory, args.format, args.format, args.timeout, output_file_dir, results_file_name, repetition)
@@ -56,20 +60,27 @@ def run_experiment(executable, directory, extension, format, timeout, output_fil
         if arguments_file.endswith(extension):
             labelings_file = arguments_file + ".L"
             results = run_solver(executable, arguments_file, labelings_file, format, timeout, output_file_dir, repetition)
-            write_to_file(results, results_file_name)
+            write_results_to_file(results, results_file_name)
 
 
-def write_to_file(results, results_file):
+def write_results_to_file(results, results_file):
     with open(results_file, 'a+') as file:
-        file.write("test")
+        file.write(f"{results['executable']},{results['instance']},{results['labelings']},{results['format']},{results['timed_out']},{results['runtime']},{results['result']},{results['exit_with_error']},{results['error_code']},{results['error']},{results['cut_off']},{results['repetition']}\n")
     
 
 def run_solver(solver_path, arguments, labelings, format, timeout, output_file_dir=None, repetition=None):
         solver_dir = os.path.dirname(solver_path) + "/"
-
-        results = {}
-
         instance_name = Path(arguments).stem
+
+        results = {
+            'executable': solver_path,
+            'repetition': repetition,
+            'instance': instance_name,
+            'format':format,
+            'labelings': labelings,
+            'cut_off':timeout
+        }
+
         params = ['bash', solver_path, 
                 "-a", arguments,
                 "-f", labelings,
@@ -84,15 +95,15 @@ def run_solver(solver_path, arguments, labelings, format, timeout, output_file_d
                     run_process(params, timeout=timeout, check=True,cwd=solver_dir,stdout=output)
                     end_time_current_run = time.perf_counter()
                     run_time = end_time_current_run - start_time_current_run
-                    results.update({'instance': instance_name,'format':format,'labelings': labelings,'timed_out':False,'runtime': run_time, 'result': out_file_path, 'exit_with_error': False, 'error_code': None,'error': None,'cut_off':timeout})
+                    results.update({'timed_out':False,'runtime': run_time, 'result': out_file_path, 'exit_with_error': False, 'error_code': None,'error': None})
                 else:
                     raise CalledProcessError(returncode=-1,cmd=params,output="Solver path not found.")
 
         except TimeoutExpired as e:
-            results.update({'instance': instance_name,'format':format,'labelings': labelings,'timed_out':True,'runtime': timeout, 'result': None, 'exit_with_error': False, 'error_code': None,'error': None,'cut_off':timeout})
+            results.update({'timed_out':True,'runtime': timeout, 'result': None, 'exit_with_error': False, 'error_code': None,'error': None})
         except CalledProcessError as err:
             print("\nError occured:",err)
-            results.update({'instance': instance_name,'format':format,'labelings': labelings,'timed_out':False,'runtime': None, 'result': None, 'exit_with_error': True, 'error_code': err.returncode,'error': err,'cut_off':timeout})
+            results.update({'timed_out':False,'runtime': None, 'result': None, 'exit_with_error': True, 'error_code': err.returncode,'error': err})
 
         return results
 
